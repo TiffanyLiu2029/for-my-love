@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Be My Valentine?</title>
+  <style>
+    :root {
+      --bg1: #ffdde1;
+      --bg2: #ee9ca7;
+      --card: rgba(255,255,255,0.88);
+      --text: #1f1f1f;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 20% 20%, var(--bg1), var(--bg2));
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .card {
+      width: min(720px, 92vw);
+      padding: 28px 22px;
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      backdrop-filter: blur(8px);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      font-size: clamp(14px, 2vw, 18px);
+      opacity: 0.9;
+    }
+
+    .btnRow {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+      position: relative;
+      min-height: 90px;
+    }
+
+    button {
+      border: 0;
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    #yesBtn {
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 10px 20px rgba(34,197,94,0.35);
+    }
+    #yesBtn:hover { filter: brightness(1.05); }
+
+    /* The NO button will be positioned absolutely once we start moving it */
+    #noBtn {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 10px 20px rgba(239,68,68,0.28);
+      position: relative; /* becomes absolute in JS */
+    }
+
+    .tiny {
+      margin-top: 12px;
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    /* Video screen (hidden by default) */
+    #videoScreen {
+      display: none;
+      width: min(900px, 94vw);
+      padding: 22px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      text-align: center;
+    }
+
+    #videoScreen h2 {
+      margin: 0 0 12px;
+      font-size: clamp(22px, 3.2vw, 34px);
+    }
+
+    .videoWrap {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.2);
+    }
+
+    .videoWrap iframe, .videoWrap video {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .back {
+      margin-top: 14px;
+      background: #111827;
+      color: #fff;
+      font-weight: 700;
+      padding: 12px 18px;
+      border-radius: 999px;
+    }
+
+    /* Floating hearts (optional cute effect) */
+    .heart {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      transform: rotate(45deg);
+      background: rgba(255, 0, 80, 0.25);
+      border-radius: 4px;
+      pointer-events: none;
+      animation: floatUp 7s linear infinite;
+      opacity: 0.8;
+    }
+    .heart::before, .heart::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: inherit;
+      border-radius: 50%;
+    }
+    .heart::before { left: -9px; top: 0; }
+    .heart::after { left: 0; top: -9px; }
+
+    @keyframes floatUp {
+      from { transform: translateY(40vh) rotate(45deg); }
+      to   { transform: translateY(-70vh) rotate(45deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="askScreen" aria-live="polite">
+    <h1>Will you be my Valentine? 💘</h1>
+    <p>Choose wisely.</p>
+
+    <div class="btnRow" id="arena">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </div>
+
+    <div class="tiny">(P.S. the “No” button is… shy.)</div>
+  </div>
+
+  <div id="videoScreen">
+    <h2>YAYYYY 💞</h2>
+
+    <!-- OPTION A (recommended): Embed a YouTube/TikTok/etc. video with an iframe -->
+    <!-- Replace the src="" with your embed URL -->
+    <div class="videoWrap" id="embedWrap">
+      <iframe
+        id="videoEmbed"
+        src=""
+        title="Valentine Video"
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <!-- OPTION B: Use a local MP4 file instead (uncomment below and comment out the iframe above) -->
+    <!--
+    <div class="videoWrap">
+      <video controls autoplay playsinline>
+        <source src="your-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    -->
+
+    <!-- OPTION C: Just redirect to a video link instead of embedding (set VIDEO_REDIRECT in JS) -->
+
+    <button class="back" id="backBtn">Back</button>
+  </div>
+
+  <script>
+    // ==========================
+    // SETTINGS YOU CAN CHANGE
+    // ==========================
+    // If you want YES to redirect to a link instead of showing the embedded screen:
+    // Put a URL here (e.g., YouTube link). Leave as "" to show embedded screen.
+    const VIDEO_REDIRECT = "";
+
+    // If you're embedding a video (Option A), set your EMBED url here.
+    // For YouTube: click Share -> Embed, then copy the "src" from the iframe.
+    // Example: "https://www.youtube.com/embed/VIDEO_ID?autoplay=1"
+    const EMBED_URL = "https://www.youtube.com/embed/p2C-rRnSWzI?si=BiOpDuIM_MIbUZMy"; // <-- paste embed src here
+
+    // How "aggressively" the NO button dodges
+    const DODGE_DISTANCE = 120; // px
+    const EDGE_PADDING = 16; // px from edges
+
+    // ==========================
+    // LOGIC
+    // ==========================
+    const askScreen = document.getElementById("askScreen");
+    const videoScreen = document.getElementById("videoScreen");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const arena = document.getElementById("arena");
+    const backBtn = document.getElementById("backBtn");
+    const videoEmbed = document.getElementById("videoEmbed");
+
+    let noIsAbsolute = false;
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function getArenaRect() {
+      return arena.getBoundingClientRect();
+    }
+
+    function makeNoAbsoluteIfNeeded() {
+      if (noIsAbsolute) return;
+      const rect = noBtn.getBoundingClientRect();
+      const arenaRect = getArenaRect();
+
+      // Convert current position to arena-relative coordinates
+      const left = rect.left - arenaRect.left;
+      const top = rect.top - arenaRect.top;
+
+      noBtn.style.position = "absolute";
+      noBtn.style.left = left + "px";
+      noBtn.style.top = top + "px";
+      noIsAbsolute = true;
+    }
+
+    function moveNoButtonAwayFrom(pointerX, pointerY) {
+      makeNoAbsoluteIfNeeded();
+
+      const arenaRect = getArenaRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const btnCenterX = btnRect.left + btnRect.width / 2;
+      const btnCenterY = btnRect.top + btnRect.height / 2;
+
+      // Vector from pointer to button center
+      let dx = btnCenterX - pointerX;
+      let dy = btnCenterY - pointerY;
+
+      // If pointer is exactly at center, pick a random direction
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len;
+      dy /= len;
+
+      // New target position in viewport coords
+      const targetCenterX = btnCenterX + dx * DODGE_DISTANCE;
+      const targetCenterY = btnCenterY + dy * DODGE_DISTANCE;
+
+      // Convert to arena-relative top/left for the button
+      const newLeft = targetCenterX - arenaRect.left - btnRect.width / 2;
+      const newTop  = targetCenterY - arenaRect.top  - btnRect.height / 2;
+
+      // Clamp within arena
+      const maxLeft = arenaRect.width - btnRect.width - EDGE_PADDING;
+      const maxTop  = arenaRect.height - btnRect.height - EDGE_PADDING;
+
+      noBtn.style.left = clamp(newLeft, EDGE_PADDING, maxLeft) + "px";
+      noBtn.style.top  = clamp(newTop,  EDGE_PADDING, maxTop) + "px";
+    }
+
+    function showVideo() {
+      if (VIDEO_REDIRECT && VIDEO_REDIRECT.trim() !== "") {
+        window.location.href = VIDEO_REDIRECT.trim();
+        return;
+      }
+
+      // Show embedded video screen
+      askScreen.style.display = "none";
+      videoScreen.style.display = "block";
+
+      if (EMBED_URL && EMBED_URL.trim() !== "") {
+        videoEmbed.src = EMBED_URL.trim();
+      } else {
+        // If no embed URL provided, show a friendly placeholder
+        videoEmbed.src = "about:blank";
+        videoEmbed.style.background = "#000";
+      }
+    }
+
+    function goBack() {
+      // stop video if iframe
+      videoEmbed.src = "";
+      videoScreen.style.display = "none";
+      askScreen.style.display = "block";
+    }
+
+    // Desktop: move on hover/nearby mouse
+    noBtn.addEventListener("mouseenter", (e) => {
+      moveNoButtonAwayFrom(e.clientX, e.clientY);
+    });
+
+    // If they chase it, keep dodging
+    document.addEventListener("mousemove", (e) => {
+      // Only dodge if mouse is near the button
+      const r = noBtn.getBoundingClientRect();
+      const near =
+        e.clientX >= r.left - 40 &&
+        e.clientX <= r.right + 40 &&
+        e.clientY >= r.top - 40 &&
+        e.clientY <= r.bottom + 40;
+
+      if (near) moveNoButtonAwayFrom(e.clientX, e.clientY);
+    });
+
+    // Mobile: dodge on touch
+    noBtn.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      moveNoButtonAwayFrom(t.clientX, t.clientY);
+      e.preventDefault();
+    }, { passive: false });
+
+    // Even if they tap "No", make it move instead
+    noBtn.addEventListener("click", (e) => {
+      // Move away from click point
+      moveNoButtonAwayFrom(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2);
+      e.preventDefault();
+    });
+
+    yesBtn.addEventListener("click", showVideo);
+    backBtn.addEventListener("click", goBack);
+
+    // Cute floating hearts
+    function spawnHeart() {
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.style.left = Math.random() * 100 + "vw";
+      h.style.animationDuration = (5 + Math.random() * 5) + "s";
+      h.style.opacity = (0.35 + Math.random() * 0.45).toFixed(2);
+      h.style.transform = `translateY(40vh) rotate(45deg) scale(${0.7 + Math.random() * 1.2})`;
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 11000);
+    }
+    setInterval(spawnHeart, 600);
+  </script>
+</body>
+</html>
